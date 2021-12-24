@@ -39,7 +39,6 @@ namespace Salvo.Controllers
                         gameView.CreationDate = gameplayer.Game.CreationDate;
                         gameView.GamePlayers = new List<GamePlayerDTO>();
                         gameView.GameState = Enum.GetName(typeof(GameState), gameplayer.GetGameState());
-                        //gameView.GameState = gameplayer.GetGameState();
                     }
 
                     foreach (var gp in gameplayer.Game.GamePlayers)
@@ -120,18 +119,14 @@ namespace Salvo.Controllers
             {
                 var gp = _repository.FindById(id);
                 if (gp == null)
-                {
                     return StatusCode(403, "No existe el juego");
-                }
-                else if (gp.Player.Email != User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value)
-                {
+                if (gp.Player.Email != User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value)
                     return StatusCode(403, "El usuario no se encuentra en el juego");
-                }
-                else if (gp.Ships.Count == 5)
-                {
+                if (gp.Ships.Count == 5)
                     return StatusCode(403, "Ya se han posicionado los barcos");
-                }
+
                 var shipList = new List<Ship>();
+
                 foreach (var ship in ships)
                 {
                     shipList.Add(
@@ -146,8 +141,11 @@ namespace Salvo.Controllers
                         }
                         );
                 }
+
                 gp.Ships = shipList;
+
                 _repository.Save(gp);
+
                 return StatusCode(201, gp.Id);
             }
             catch (Exception ex)
@@ -162,23 +160,31 @@ namespace Salvo.Controllers
             try
             {
                 var gameplayer = _repository.FindById(id);
-                if (gameplayer == null) return StatusCode(403, "No existe el juego");
-                else if (gameplayer.Player.Email != User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value) return StatusCode(403, "El usuario no se encuentra en el juego.");
-                else if (gameplayer.Game.GamePlayers.Count != 2) return StatusCode(403, "El juego no ha iniciado aun.");
-                else if (gameplayer.Ships.Count == 0) return StatusCode(403, "El Usuario logueado no ha posicionado los barcos.");
+                if (gameplayer == null) 
+                    return StatusCode(403, "No existe el juego");
+                if (gameplayer.Player.Email != User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value) 
+                    return StatusCode(403, "El usuario no se encuentra en el juego.");
+                if (gameplayer.Game.GamePlayers.Count != 2) 
+                    return StatusCode(403, "El juego no ha iniciado aun.");
+                if (gameplayer.Ships.Count == 0) 
+                    return StatusCode(403, "El Usuario logueado no ha posicionado los barcos.");
 
                 GameState? gameState = gameplayer.GetGameState();
 
-                if (gameState == GameState.LOSS || gameState == GameState.WIN || gameState == GameState.TIE) return StatusCode(403, "El juego ha terminado");
+                if (gameState == GameState.LOSS || gameState == GameState.WIN || gameState == GameState.TIE) 
+                    return StatusCode(403, "El juego ha terminado");
 
                 GamePlayer opponent = gameplayer.GetOpponent();
 
-                if (opponent.Ships.Count == 0) return StatusCode(403, "El oponente no ha posicionado los barcos.");
+                if (opponent.Ships.Count == 0) 
+                    return StatusCode(403, "El oponente no ha posicionado los barcos.");
 
                 int playerTurn = gameplayer.Salvos != null ? gameplayer.Salvos.Count + 1 : 1;
                 int opponentTurn = opponent.Salvos != null ? opponent.Salvos.Count : 0;
 
-                if ((playerTurn - opponentTurn) < -1 || (playerTurn - opponentTurn) > 1) return StatusCode(403, "No se puede adelantar el turno.");
+                if ((playerTurn - opponentTurn) < -1 || (playerTurn - opponentTurn) > 1) 
+                    return StatusCode(403, "No se puede adelantar el turno.");
+
                 gameplayer.Salvos.Add(new Models.Salvo
                 {
                     GamePlayerId = gameplayer.Id,

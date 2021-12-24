@@ -33,14 +33,11 @@ namespace Salvo.Controllers
                 string email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value ?? "Guest";
 
                 if (email == "Guest")
-                {
                     return StatusCode(401, "Debe registrarse para ver el perfil de usuario.");
-                }
+                
                 Player PlayerLogeado = _repository.FindByEmail(email);
                 if (PlayerLogeado == null)
-                {
                     return StatusCode(404, "No existe un jugador registrado con ese email");
-                }
 
                 var jugador = new PlayerDTO
                 {
@@ -75,9 +72,7 @@ namespace Salvo.Controllers
                 if (email == "Guest")
                     return StatusCode(401, "Debe registrarse para ver el perfil de usuario.");
 
-
                 Player PlayerLogeado = _repository.FindByEmail(email);
-
 
                 if (PlayerLogeado == null)
                     return StatusCode(404, "No existe un jugador registrado con ese email");

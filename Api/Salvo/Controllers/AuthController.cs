@@ -29,7 +29,6 @@ namespace Salvo.Controllers
             _userService = userService;
         }
 
-        // GET api/values
         [HttpPost, Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel user)
         {
@@ -182,7 +181,6 @@ namespace Salvo.Controllers
             return BadRequest(result); // 400
         }
 
-        // api/auth/resetpassword
         [HttpPost, Route("resetpassword")]
         public IActionResult ResetPassword([FromBody] ResetPasswordModel model)
         {
